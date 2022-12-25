@@ -7,12 +7,12 @@ def solve(data):
 
 
 def part_one(data):
-    blizzards = tuple((x - 1, y - 1, c) for y, line in enumerate(data) for x, c in enumerate(line) if c in '><v^')
+    blizzards = [(x - 1, y - 1, c) for y, line in enumerate(data) for x, c in enumerate(line) if c in '><v^']
     start = (data[0].index('.') - 1, 0)
     end = (data[-1].index('.') - 1, len(data) - 2)
     xmax = len(data[0]) - 2
     ymax = len(data) - 2
-    return bfs(start, end, blizzards, xmax, ymax)[0]
+    return bfs(start, end, blizzards, xmax, ymax)
 
 
 def neighbours(x, y):
@@ -25,12 +25,12 @@ def bfs(start, end, blizzards, xmax, ymax):
 
     while True:
         dist += 1
-        blizzards, bliz_set = update_blizzards(blizzards, xmax, ymax)
+        bliz_set = update_blizzards(blizzards, xmax, ymax)
         new_elves = set()
         for cur in elves:
             for nx, ny in neighbours(*cur):
                 if (nx, ny) == end:
-                    return dist, blizzards
+                    return dist
                 if (nx, ny) not in bliz_set and 0 <= nx < xmax and 0 <= ny < ymax:
                     new_elves.add((nx, ny))
             if cur not in bliz_set:
@@ -39,8 +39,7 @@ def bfs(start, end, blizzards, xmax, ymax):
 
 
 def update_blizzards(blizzards, xmax, ymax):
-    res = []
-    for x, y, c in blizzards:
+    for i, (x, y, c) in enumerate(blizzards):
         if c == '>':
             x += 1
         elif c == '<':
@@ -51,19 +50,19 @@ def update_blizzards(blizzards, xmax, ymax):
             y += 1
         x %= xmax
         y %= ymax
-        res.append((x, y, c))
-    return tuple(res), {(x, y) for x, y, _ in res}
+        blizzards[i] = (x, y, c)
+    return {(x, y) for x, y, _ in blizzards}
 
 
 def part_two(data):
-    blizzards = tuple((x - 1, y - 1, c) for y, line in enumerate(data) for x, c in enumerate(line) if c in '><v^')
+    blizzards = [(x - 1, y - 1, c) for y, line in enumerate(data) for x, c in enumerate(line) if c in '><v^']
     start = (data[0].index('.') - 1, 0)
     end = (data[-1].index('.') - 1, len(data) - 2)
     xmax = len(data[0]) - 2
     ymax = len(data) - 2
-    a, blizzards = bfs(start, end, blizzards, xmax, ymax)
-    b, blizzards = bfs(end, start, blizzards, xmax, ymax)
-    c, _ = bfs(start, end, blizzards, xmax, ymax)
+    a = bfs(start, end, blizzards, xmax, ymax)
+    b = bfs(end, start, blizzards, xmax, ymax)
+    c = bfs(start, end, blizzards, xmax, ymax)
     return a + b + c
 
 
